@@ -166,6 +166,7 @@ func (i *Interpreter) VisitBinaryExpr(expr *ast.Binary) any {
 	return nil
 }
 
+// Interpret interprets expressions from an AST.
 func (i *Interpreter) Interpret(expression ast.Expr) {
 	value := i.evaluate(expression)
 	fmt.Println(value)
