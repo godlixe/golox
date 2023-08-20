@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"golox/ast"
+	"golox/statement"
 	"golox/token"
 )
 
@@ -293,12 +294,53 @@ func (p *Parser) primary() (ast.Expr, error) {
 	return &ast.Binary{}, nil
 }
 
-// parse parses the tokens inside the token list.
-func (p *Parser) Parse() ast.Expr {
-	expr, err := p.expression()
+func (p *Parser) printStatement() statement.Stmt {
+	value, err := p.expression()
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println(value)
 	}
 
-	return expr
+	p.consume(token.SEMICOLON, "Expect ';' after value.")
+	return &statement.Print{
+		Expression: value,
+	}
+}
+
+func (p *Parser) expressionStatement() statement.Stmt {
+	value, err := p.expression()
+	if err != nil {
+		fmt.Println(value)
+	}
+
+	p.consume(token.SEMICOLON, "Expect ';' after value.")
+	return &statement.Expression{
+		Expression: value,
+	}
+}
+
+func (p *Parser) statement() statement.Stmt {
+	if p.match(token.PRINT) {
+		return p.printStatement()
+	}
+
+	fmt.Println(p.peek())
+
+	return p.expressionStatement()
+}
+
+// parse parses the tokens inside the token list.
+func (p *Parser) Parse() []statement.Stmt {
+	// expr, err := p.expression()
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+
+	var statements []statement.Stmt
+
+	for !p.isAtEnd() {
+		statements = append(statements, p.statement())
+		p.advance()
+	}
+
+	return statements
 }

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"golox/ast"
+	"golox/statement"
 	"golox/token"
 )
 
@@ -69,7 +70,7 @@ func (i *Interpreter) VisitGroupingExpr(expr *ast.Grouping) any {
 	return i.evaluate(expr.Expression)
 }
 
-// TODO
+// evaluate evaluates an expression.
 func (i *Interpreter) evaluate(expr ast.Expr) any {
 	return expr.Accept(i)
 }
@@ -166,8 +167,25 @@ func (i *Interpreter) VisitBinaryExpr(expr *ast.Binary) any {
 	return nil
 }
 
-// Interpret interprets expressions from an AST.
-func (i *Interpreter) Interpret(expression ast.Expr) {
-	value := i.evaluate(expression)
+func (i *Interpreter) VisitExpressionStmt(stmt *statement.Expression) {
+	fmt.Println("am here : ", stmt.Expression)
+	i.evaluate(stmt.Expression)
+}
+
+func (i *Interpreter) VisitPrintStmt(stmt *statement.Print) {
+	fmt.Println("am here : ", stmt.Expression)
+	value := i.evaluate(stmt.Expression)
 	fmt.Println(value)
+}
+
+func (i *Interpreter) execute(stmt statement.Stmt) {
+	stmt.Accept(i)
+}
+
+// Interpret interprets expressions from an AST.
+func (i *Interpreter) Interpret(statements []statement.Stmt) {
+	for _, statement := range statements {
+		fmt.Println(statement)
+		i.execute(statement)
+	}
 }

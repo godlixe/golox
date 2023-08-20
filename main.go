@@ -76,11 +76,13 @@ func run(source string) {
 	parser := parser.Parser{
 		Tokens: tokens,
 	}
-	expression := parser.Parse()
+	fmt.Println(tokens)
+	statements := parser.Parse()
+	fmt.Println(statements)
 
 	interpreter := interpreter.Interpreter{}
 
-	interpreter.Interpret(expression)
+	interpreter.Interpret(statements)
 
 	// for _, token := range tokens {
 	// 	fmt.Println(token)
