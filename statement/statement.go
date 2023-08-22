@@ -5,6 +5,18 @@ import (
 	"golox/token"
 )
 
+/*
+Statement production rules
+
+program        → statement* EOF ;
+
+statement      → exprStmt
+               | printStmt ;
+
+exprStmt       → expression ";" ;
+printStmt      → "print" expression ";" ;
+*/
+
 type Visitor interface {
 	// VisitBlockStmt(stmt *Block)
 	// VisitClassStmt(stmt *Class)

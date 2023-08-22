@@ -1,2 +1,2 @@
-print 19*(4+2)
-print "Hello World"
+print 19*(4+2);
+print "Hello World";

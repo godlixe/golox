@@ -283,8 +283,9 @@ func (p *Parser) primary() (ast.Expr, error) {
 		}
 
 		_, err = p.consume(token.RIGHT_PAREN, "Expect ')' after expression.")
-
-		p.synchronize()
+		if err != nil {
+			fmt.Println(err)
+		}
 
 		return &ast.Grouping{
 			Expression: expr,
@@ -300,7 +301,11 @@ func (p *Parser) printStatement() statement.Stmt {
 		fmt.Println(value)
 	}
 
-	p.consume(token.SEMICOLON, "Expect ';' after value.")
+	_, err = p.consume(token.SEMICOLON, "Expect ';' after value.")
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	return &statement.Print{
 		Expression: value,
 	}
