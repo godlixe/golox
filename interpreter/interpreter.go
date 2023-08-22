@@ -9,6 +9,7 @@ import (
 )
 
 type Interpreter struct {
+	Environment Environment
 }
 
 // isTruthy checks if an object is truthy or falsey.
@@ -68,6 +69,10 @@ func (i *Interpreter) VisitLiteralExpr(expr *ast.Literal) any {
 // VisitGroupingExpr evaluates a group expression.
 func (i *Interpreter) VisitGroupingExpr(expr *ast.Grouping) any {
 	return i.evaluate(expr.Expression)
+}
+
+func (i *Interpreter) VisitVariableExpr(expr *ast.Variable) any {
+	return i.Environment.get(expr.Name)
 }
 
 // evaluate evaluates an expression.
@@ -174,6 +179,15 @@ func (i *Interpreter) VisitExpressionStmt(stmt *statement.Expression) {
 func (i *Interpreter) VisitPrintStmt(stmt *statement.Print) {
 	value := i.evaluate(stmt.Expression)
 	fmt.Println(value)
+}
+
+func (i *Interpreter) VisitVarStmt(stmt *statement.Variable) {
+	var value any
+	if stmt.Initializer != nil {
+		value = i.evaluate(stmt.Initializer)
+	}
+
+	i.Environment.define(stmt.Name.Lexeme, value)
 }
 
 func (i *Interpreter) execute(stmt statement.Stmt) {

@@ -79,7 +79,15 @@ func run(source string) {
 
 	statements := parser.Parse()
 
-	interpreter := interpreter.Interpreter{}
+	interpreter := interpreter.Interpreter{
+		Environment: interpreter.Environment{
+			Values: make(map[string]any),
+		},
+	}
 
 	interpreter.Interpret(statements)
+	if true {
+		tez := "hi"
+		fmt.Println(tez)
+	}
 }

@@ -25,7 +25,7 @@ type Visitor interface {
 	// VisitIfStmt(stmt *If)
 	VisitPrintStmt(stmt *Print)
 	// VisitReturnStmt(stmt *Return)
-	// VisitVarStmt(stmt *Variable)
+	VisitVarStmt(stmt *Variable)
 	// VisitWhileStmt(stmt *While)
 }
 
@@ -101,9 +101,9 @@ type Variable struct {
 	Initializer ast.Expr
 }
 
-// func (v *Variable) Accept(visitor Visitor) {
-// 	visitor.VisitVarStmt(v)
-// }
+func (v *Variable) Accept(visitor Visitor) {
+	visitor.VisitVarStmt(v)
+}
 
 type While struct {
 	Condition ast.Expr

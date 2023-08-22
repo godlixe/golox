@@ -17,7 +17,7 @@ type Visitor interface {
 	// VisitSuperExpr(super *Super) any
 	// VisitThisExpr(this *This) any
 	VisitUnaryExpr(unary *Unary) any
-	// VisitVariableExpr(variable *Variable) any
+	VisitVariableExpr(variable *Variable) any
 }
 
 // Expr defines an interface for an expression.
@@ -148,6 +148,6 @@ type Variable struct {
 	Name token.Token
 }
 
-// func (v *Variable) Accept(visitor Visitor) any {
-// 	return visitor.VisitVariableExpr(v)
-// }
+func (v *Variable) Accept(visitor Visitor) any {
+	return visitor.VisitVariableExpr(v)
+}

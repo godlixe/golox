@@ -275,6 +275,12 @@ func (p *Parser) primary() (ast.Expr, error) {
 		}, nil
 	}
 
+	if p.match(token.IDENTIFIER) {
+		return &ast.Variable{
+			Name: p.previous(),
+		}, nil
+	}
+
 	if p.match(token.LEFT_PAREN) {
 		var err error
 		expr, err := p.expression()
@@ -295,40 +301,78 @@ func (p *Parser) primary() (ast.Expr, error) {
 	return &ast.Binary{}, nil
 }
 
-func (p *Parser) printStatement() statement.Stmt {
+func (p *Parser) printStatement() (statement.Stmt, error) {
 	value, err := p.expression()
 	if err != nil {
 		fmt.Println(value)
+		return nil, err
 	}
 
 	_, err = p.consume(token.SEMICOLON, "Expect ';' after value.")
 	if err != nil {
 		fmt.Println(err)
+		return nil, err
 	}
 
 	return &statement.Print{
 		Expression: value,
-	}
+	}, nil
 }
 
-func (p *Parser) expressionStatement() statement.Stmt {
+func (p *Parser) expressionStatement() (statement.Stmt, error) {
 	value, err := p.expression()
 	if err != nil {
 		fmt.Println(value)
+		return nil, err
 	}
 
 	p.consume(token.SEMICOLON, "Expect ';' after value.")
 	return &statement.Expression{
 		Expression: value,
-	}
+	}, nil
 }
 
-func (p *Parser) statement() statement.Stmt {
+func (p *Parser) statement() (statement.Stmt, error) {
 	if p.match(token.PRINT) {
 		return p.printStatement()
 	}
 
 	return p.expressionStatement()
+}
+
+func (p *Parser) varDeclaration() (statement.Stmt, error) {
+	var (
+		initializer ast.Expr
+		err         error
+	)
+
+	name, err := p.consume(token.IDENTIFIER, "Expect variable name.")
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	if p.match(token.EQUAL) {
+		initializer, err = p.expression()
+		if err != nil {
+			fmt.Println(err)
+			return nil, err
+		}
+	}
+
+	p.consume(token.SEMICOLON, "Expect ';' after variable declaration")
+	return &statement.Variable{
+		Name:        name,
+		Initializer: initializer,
+	}, nil
+}
+
+func (p *Parser) declaration() (statement.Stmt, error) {
+	if p.match(token.VAR) {
+		return p.varDeclaration()
+	}
+
+	return p.statement()
 }
 
 // parse parses the tokens inside the token list.
@@ -337,7 +381,13 @@ func (p *Parser) Parse() []statement.Stmt {
 	var statements []statement.Stmt
 
 	for !p.isAtEnd() {
-		statements = append(statements, p.statement())
+		statement, err := p.declaration()
+		if err != nil {
+			fmt.Println(err)
+			p.synchronize()
+		}
+
+		statements = append(statements, statement)
 	}
 
 	return statements
