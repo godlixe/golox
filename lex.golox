@@ -1,1 +1,2 @@
-print "hi";
+print 19*(4+2)
+print "Hello World"

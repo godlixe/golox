@@ -323,23 +323,16 @@ func (p *Parser) statement() statement.Stmt {
 		return p.printStatement()
 	}
 
-	fmt.Println(p.peek())
-
 	return p.expressionStatement()
 }
 
 // parse parses the tokens inside the token list.
 func (p *Parser) Parse() []statement.Stmt {
-	// expr, err := p.expression()
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
 
 	var statements []statement.Stmt
 
 	for !p.isAtEnd() {
 		statements = append(statements, p.statement())
-		p.advance()
 	}
 
 	return statements

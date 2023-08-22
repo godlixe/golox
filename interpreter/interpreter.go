@@ -168,12 +168,10 @@ func (i *Interpreter) VisitBinaryExpr(expr *ast.Binary) any {
 }
 
 func (i *Interpreter) VisitExpressionStmt(stmt *statement.Expression) {
-	fmt.Println("am here : ", stmt.Expression)
 	i.evaluate(stmt.Expression)
 }
 
 func (i *Interpreter) VisitPrintStmt(stmt *statement.Print) {
-	fmt.Println("am here : ", stmt.Expression)
 	value := i.evaluate(stmt.Expression)
 	fmt.Println(value)
 }
@@ -185,7 +183,6 @@ func (i *Interpreter) execute(stmt statement.Stmt) {
 // Interpret interprets expressions from an AST.
 func (i *Interpreter) Interpret(statements []statement.Stmt) {
 	for _, statement := range statements {
-		fmt.Println(statement)
 		i.execute(statement)
 	}
 }

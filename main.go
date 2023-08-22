@@ -76,31 +76,10 @@ func run(source string) {
 	parser := parser.Parser{
 		Tokens: tokens,
 	}
-	fmt.Println(tokens)
+
 	statements := parser.Parse()
-	fmt.Println(statements)
 
 	interpreter := interpreter.Interpreter{}
 
 	interpreter.Interpret(statements)
-
-	// for _, token := range tokens {
-	// 	fmt.Println(token)
-	// }
-	// var expr ast.Expr = expression
-	// for expression != nil {
-	// 	fmt.Println(expr)
-	// 	if v, ok := expr.(*ast.Binary); ok {
-	// 		fmt.Println("left : ", (v.Left))
-	// 		fmt.Println("right : ", (v.Right))
-	// 		expr = v.Right
-	// 	} else if v, ok := expr.(*ast.Unary); ok {
-	// 		expr = v.Right
-	// 	} else {
-	// 		fmt.Println(expr)
-	// 		break
-	// 	}
-	// }
-
-	// printAst(expression)
 }

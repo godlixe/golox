@@ -180,7 +180,7 @@ func (s *Scanner) identifier() {
 		s.advance()
 	}
 
-	text := s.Source[s.Start : s.Current+1]
+	text := s.Source[s.Start:s.Current]
 	tokenType := keywords[text]
 
 	if tokenType == "" {
