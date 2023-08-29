@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"golox/ast"
 	"golox/interpreter"
 	"golox/parser"
 	"golox/scanner"
@@ -53,22 +52,6 @@ func runFile(path string) {
 	run(string(data))
 }
 
-func printAst(expr ast.Expr) {
-	if expr == nil {
-		return
-	}
-
-	if v, ok := expr.(*ast.Literal); ok {
-		fmt.Println(v)
-	}
-
-	if v, ok := expr.(*ast.Binary); ok {
-		printAst(v.Left)
-		printAst(v.Right)
-		fmt.Println(v.Operator)
-	}
-}
-
 func run(source string) {
 	scanner := scanner.New(source)
 	tokens := scanner.ScanTokens()
@@ -81,13 +64,10 @@ func run(source string) {
 
 	interpreter := interpreter.Interpreter{
 		Environment: interpreter.Environment{
-			Values: make(map[string]any),
+			Enclosing: nil,
+			Values:    make(map[string]any),
 		},
 	}
 
 	interpreter.Interpret(statements)
-	if true {
-		tez := "hi"
-		fmt.Println(tez)
-	}
 }

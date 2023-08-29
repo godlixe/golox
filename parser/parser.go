@@ -120,7 +120,7 @@ func (p *Parser) synchronize() {
 // expression parses an expression starting from the
 // expression of lowest precedence.
 func (p *Parser) expression() (ast.Expr, error) {
-	return p.equality()
+	return p.assignment()
 }
 
 // equality parses an equality expression. An equality
@@ -301,6 +301,23 @@ func (p *Parser) primary() (ast.Expr, error) {
 	return &ast.Binary{}, nil
 }
 
+func (p *Parser) block() []statement.Stmt {
+	var statements []statement.Stmt
+
+	for !p.check(token.RIGHT_BRACE) && !p.isAtEnd() {
+		declaration, err := p.declaration()
+		if err != nil {
+			fmt.Println("Invalid declaration.")
+			panic(1)
+		}
+
+		statements = append(statements, declaration)
+	}
+
+	p.consume(token.RIGHT_BRACE, "Expect '}' after block.")
+	return statements
+}
+
 func (p *Parser) printStatement() (statement.Stmt, error) {
 	value, err := p.expression()
 	if err != nil {
@@ -337,7 +354,40 @@ func (p *Parser) statement() (statement.Stmt, error) {
 		return p.printStatement()
 	}
 
+	if p.match(token.LEFT_BRACE) {
+		return &statement.Block{
+			Statements: p.block(),
+		}, nil
+	}
+
 	return p.expressionStatement()
+}
+
+func (p *Parser) assignment() (ast.Expr, error) {
+	expr, err := p.equality()
+	if err != nil {
+		return nil, err
+	}
+
+	if p.match(token.EQUAL) {
+		equals := p.previous()
+		value, err := p.assignment()
+		if err != nil {
+			return nil, err
+		}
+
+		if v, ok := expr.(*ast.Variable); ok {
+			name := v.Name
+			return &ast.Assign{
+				Name:  name,
+				Value: value,
+			}, nil
+		}
+
+		return nil, errors.New(fmt.Sprint(equals) + "Invalid assignment target. ")
+	}
+
+	return expr, nil
 }
 
 func (p *Parser) varDeclaration() (statement.Stmt, error) {

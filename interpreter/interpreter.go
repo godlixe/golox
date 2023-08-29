@@ -75,6 +75,12 @@ func (i *Interpreter) VisitVariableExpr(expr *ast.Variable) any {
 	return i.Environment.get(expr.Name)
 }
 
+func (i *Interpreter) VisitAssignExpr(expr *ast.Assign) any {
+	value := i.evaluate(expr.Value)
+	i.Environment.assign(expr.Name, value)
+	return value
+}
+
 // evaluate evaluates an expression.
 func (i *Interpreter) evaluate(expr ast.Expr) any {
 	return expr.Accept(i)
@@ -188,6 +194,22 @@ func (i *Interpreter) VisitVarStmt(stmt *statement.Variable) {
 	}
 
 	i.Environment.define(stmt.Name.Lexeme, value)
+}
+
+func (i *Interpreter) VisitBlockStmt(stmt *statement.Block) {
+	i.executeBlock(stmt.Statements, NewEnvironment(i.Environment))
+}
+
+func (i *Interpreter) executeBlock(statements []statement.Stmt, environment Environment) {
+	previous := i.Environment
+
+	i.Environment = environment
+
+	for _, statement := range statements {
+		i.execute(statement)
+	}
+
+	i.Environment = previous
 }
 
 func (i *Interpreter) execute(stmt statement.Stmt) {

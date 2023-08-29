@@ -11,14 +11,16 @@ Statement production rules
 program        → statement* EOF ;
 
 statement      → exprStmt
-               | printStmt ;
+               | printStmt
+			   | block ;
 
+block          → "{" declaration* "}";
 exprStmt       → expression ";" ;
 printStmt      → "print" expression ";" ;
 */
 
 type Visitor interface {
-	// VisitBlockStmt(stmt *Block)
+	VisitBlockStmt(stmt *Block)
 	// VisitClassStmt(stmt *Class)
 	VisitExpressionStmt(stmt *Expression)
 	// VisitFunctionStmt(stmt *Function)
@@ -37,9 +39,9 @@ type Block struct {
 	Statements []Stmt
 }
 
-// func (b *Block) Accept(visitor Visitor) {
-// 	visitor.VisitBlockStmt(b)
-// }
+func (b *Block) Accept(visitor Visitor) {
+	visitor.VisitBlockStmt(b)
+}
 
 type Class struct {
 	Name       token.Token

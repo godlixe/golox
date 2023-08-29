@@ -1,12 +1,15 @@
 package ast
 
-import "golox/token"
+import (
+	"fmt"
+	"golox/token"
+)
 
 // Visitor is an interface for implementing
 // the visitor pattern. It provides method
 // for visiting expressions in the AST.
 type Visitor interface {
-	// VisitAssignExpr(assign *Assign) any
+	VisitAssignExpr(assign *Assign) any
 	VisitBinaryExpr(binary *Binary) any
 	// VisitCallExpr(call *Call) any
 	// VisitGetExpr(get *Get) any
@@ -18,6 +21,22 @@ type Visitor interface {
 	// VisitThisExpr(this *This) any
 	VisitUnaryExpr(unary *Unary) any
 	VisitVariableExpr(variable *Variable) any
+}
+
+func PrintAst(expr Expr) {
+	if expr == nil {
+		return
+	}
+
+	if v, ok := expr.(*Literal); ok {
+		fmt.Println(v)
+	}
+
+	if v, ok := expr.(*Binary); ok {
+		PrintAst(v.Left)
+		PrintAst(v.Right)
+		fmt.Println(v.Operator)
+	}
 }
 
 // Expr defines an interface for an expression.
@@ -36,9 +55,9 @@ type Assign struct {
 	Expr
 }
 
-// func (a *Assign) Accept(visitor Visitor) any {
-// 	return visitor.VisitAssignExpr(a)
-// }
+func (a *Assign) Accept(visitor Visitor) any {
+	return visitor.VisitAssignExpr(a)
+}
 
 // Binary represents a binary
 // operation.
