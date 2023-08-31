@@ -81,6 +81,22 @@ func (i *Interpreter) VisitAssignExpr(expr *ast.Assign) any {
 	return value
 }
 
+func (i *Interpreter) VisitLogicalExpr(expr *ast.Logical) any {
+	left := i.evaluate(expr.Left)
+
+	if expr.Operator.Type == token.OR {
+		if i.isTruthy(left) {
+			return left
+		}
+	} else {
+		if !i.isTruthy(left) {
+			return left
+		}
+	}
+
+	return i.evaluate(expr.Right)
+}
+
 // evaluate evaluates an expression.
 func (i *Interpreter) evaluate(expr ast.Expr) any {
 	return expr.Accept(i)
@@ -90,10 +106,7 @@ func (i *Interpreter) evaluate(expr ast.Expr) any {
 func (i *Interpreter) VisitUnaryExpr(expr *ast.Unary) any {
 	right := i.evaluate(expr.Right)
 
-	v, ok := right.(float64)
-	if !ok {
-		fmt.Println("Type assertion error")
-	}
+	v, _ := right.(float64)
 
 	switch expr.Operator.Type {
 	case token.MINUS:

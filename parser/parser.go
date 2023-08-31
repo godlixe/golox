@@ -12,7 +12,12 @@ import (
 Below are the current production rules
 for golox
 
-expression     → equality ;
+expression     → assignment ;
+
+assignment     → IDENTIFIER "=" assignment | logic_or;
+
+logic_or       → logic_and ( "or" logic_and )* ;
+logic_and      → equality ( "and" equality )* ;
 equality       → comparison ( ( "!=" | "==" ) comparison )* ;
 comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
 term           → factor ( ( "-" | "+" ) factor )* ;
@@ -396,8 +401,54 @@ func (p *Parser) statement() (statement.Stmt, error) {
 	return p.expressionStatement()
 }
 
-func (p *Parser) assignment() (ast.Expr, error) {
+func (p *Parser) and() (ast.Expr, error) {
 	expr, err := p.equality()
+	if err != nil {
+		return nil, err
+	}
+
+	for p.match(token.AND) {
+		operator := p.previous()
+		right, err := p.equality()
+		if err != nil {
+			return nil, err
+		}
+
+		expr = &ast.Logical{
+			Left:     expr,
+			Operator: operator,
+			Right:    right,
+		}
+	}
+
+	return expr, err
+}
+
+func (p *Parser) or() (ast.Expr, error) {
+	expr, err := p.and()
+	if err != nil {
+		return nil, err
+	}
+
+	for p.match(token.AND) {
+		operator := p.previous()
+		right, err := p.and()
+		if err != nil {
+			return nil, err
+		}
+
+		expr = &ast.Logical{
+			Left:     expr,
+			Operator: operator,
+			Right:    right,
+		}
+	}
+
+	return expr, err
+}
+
+func (p *Parser) assignment() (ast.Expr, error) {
+	expr, err := p.or()
 	if err != nil {
 		return nil, err
 	}

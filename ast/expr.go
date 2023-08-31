@@ -15,7 +15,7 @@ type Visitor interface {
 	// VisitGetExpr(get *Get) any
 	VisitGroupingExpr(grouping *Grouping) any
 	VisitLiteralExpr(literal *Literal) any
-	// VisitLogicalExpr(logical *Logical) any
+	VisitLogicalExpr(logical *Logical) any
 	// VisitSetExpr(set *Set) any
 	// VisitSuperExpr(super *Super) any
 	// VisitThisExpr(this *This) any
@@ -118,9 +118,9 @@ type Logical struct {
 	Operator token.Token
 }
 
-// func (l *Logical) Accept(visitor Visitor) any {
-// 	return visitor.VisitLogicalExpr(l)
-// }
+func (l *Logical) Accept(visitor Visitor) any {
+	return visitor.VisitLogicalExpr(l)
+}
 
 // Set sets an object's property to a value.
 type Set struct {

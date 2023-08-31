@@ -3,4 +3,4 @@ var truth = "truth";
 var falsity = "falsity";
 if (a){
   print truth;
-} else print falsity;
+} else { print falsity; }
