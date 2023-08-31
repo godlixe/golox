@@ -11,9 +11,12 @@ Statement production rules
 program        → statement* EOF ;
 
 statement      → exprStmt
+			   | ifStmt
                | printStmt
 			   | block ;
 
+ifStmt		   → "if" "(" expression ")" statement
+				("else" statement)? ;
 block          → "{" declaration* "}";
 exprStmt       → expression ";" ;
 printStmt      → "print" expression ";" ;
@@ -24,7 +27,7 @@ type Visitor interface {
 	// VisitClassStmt(stmt *Class)
 	VisitExpressionStmt(stmt *Expression)
 	// VisitFunctionStmt(stmt *Function)
-	// VisitIfStmt(stmt *If)
+	VisitIfStmt(stmt *If)
 	VisitPrintStmt(stmt *Print)
 	// VisitReturnStmt(stmt *Return)
 	VisitVarStmt(stmt *Variable)
@@ -77,9 +80,9 @@ type If struct {
 	ElseBranch Stmt
 }
 
-// func (i *If) Accept(visitor Visitor) {
-// 	visitor.VisitIfStmt(i)
-// }
+func (i *If) Accept(visitor Visitor) {
+	visitor.VisitIfStmt(i)
+}
 
 type Print struct {
 	Expression ast.Expr

@@ -301,6 +301,36 @@ func (p *Parser) primary() (ast.Expr, error) {
 	return &ast.Binary{}, nil
 }
 
+func (p *Parser) ifStatement() (statement.Stmt, error) {
+	p.consume(token.LEFT_PAREN, "Expect '(' after 'if'.")
+
+	condition, err := p.expression()
+	if err != nil {
+		return nil, err
+	}
+
+	p.consume(token.RIGHT_PAREN, "Expect ')' after 'if'.")
+
+	thenBranch, err := p.statement()
+	if err != nil {
+		return nil, err
+	}
+
+	var elseBranch statement.Stmt = nil
+	if p.match(token.ELSE) {
+		elseBranch, err = p.statement()
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &statement.If{
+		Condition:  condition,
+		ThenBranch: thenBranch,
+		ElseBranch: elseBranch,
+	}, nil
+}
+
 func (p *Parser) block() []statement.Stmt {
 	var statements []statement.Stmt
 
@@ -350,6 +380,9 @@ func (p *Parser) expressionStatement() (statement.Stmt, error) {
 }
 
 func (p *Parser) statement() (statement.Stmt, error) {
+	if p.match(token.IF) {
+		return p.ifStatement()
+	}
 	if p.match(token.PRINT) {
 		return p.printStatement()
 	}
