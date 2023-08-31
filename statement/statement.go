@@ -11,10 +11,16 @@ Statement production rules
 program        → statement* EOF ;
 
 statement      → exprStmt
+			   | forStmt
 			   | ifStmt
                | printStmt
+			   | whileStmt
 			   | block ;
 
+forStmt        → "for" "(" (varDecl | exprStmt | ";")
+				expression? ";"
+				expression? ")" statement ;
+whileStmt      → "while" "(" expression ")" statement ;
 ifStmt		   → "if" "(" expression ")" statement
 				("else" statement)? ;
 block          → "{" declaration* "}";
@@ -31,7 +37,7 @@ type Visitor interface {
 	VisitPrintStmt(stmt *Print)
 	// VisitReturnStmt(stmt *Return)
 	VisitVarStmt(stmt *Variable)
-	// VisitWhileStmt(stmt *While)
+	VisitWhileStmt(stmt *While)
 }
 
 type Stmt interface {
@@ -115,6 +121,6 @@ type While struct {
 	Body      Stmt
 }
 
-// func (w *While) Accept(visitor Visitor) {
-// 	visitor.VisitWhileStmt(w)
-// }
+func (w *While) Accept(visitor Visitor) {
+	visitor.VisitWhileStmt(w)
+}

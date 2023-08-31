@@ -384,12 +384,119 @@ func (p *Parser) expressionStatement() (statement.Stmt, error) {
 	}, nil
 }
 
+func (p *Parser) whileStatement() (statement.Stmt, error) {
+	p.consume(token.LEFT_PAREN, "Expect '(' after 'while'.")
+	condition, err := p.expression()
+	if err != nil {
+		return nil, err
+	}
+
+	p.consume(token.RIGHT_PAREN, "Expect ')' after condition.")
+	body, err := p.statement()
+	if err != nil {
+		return nil, err
+	}
+
+	return &statement.While{
+		Condition: condition,
+		Body:      body,
+	}, nil
+}
+
+func (p *Parser) forStatement() (statement.Stmt, error) {
+	var err error
+	var initializer statement.Stmt
+
+	p.consume(token.LEFT_PAREN, "Expect '(' after 'for'.")
+
+	if p.match(token.SEMICOLON) {
+		initializer = nil
+	} else if p.match(token.VAR) {
+		initializer, err = p.varDeclaration()
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		initializer, err = p.expressionStatement()
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	var condition ast.Expr = nil
+	if !p.check(token.SEMICOLON) {
+		condition, err = p.expression()
+		if err != nil {
+			return nil, err
+		}
+
+		p.consume(token.SEMICOLON, "Expect ';' after loop condition.")
+	}
+
+	var increment ast.Expr = nil
+	if !p.check(token.RIGHT_PAREN) {
+		increment, err = p.expression()
+		if err != nil {
+			return nil, err
+		}
+
+		p.consume(token.RIGHT_PAREN, "Expect ')' after for clauses.")
+	}
+
+	body, err := p.statement()
+	if err != nil {
+		return nil, err
+	}
+
+	if increment != nil {
+		body = &statement.Block{
+			Statements: []statement.Stmt{
+				body,
+				&statement.Expression{
+					Expression: increment,
+				},
+			},
+		}
+	}
+
+	if condition == nil {
+		condition = &ast.Literal{
+			Value: true,
+		}
+	}
+
+	body = &statement.While{
+		Condition: condition,
+		Body:      body,
+	}
+
+	if initializer != nil {
+		body = &statement.Block{
+			Statements: []statement.Stmt{
+				initializer,
+				body,
+			},
+		}
+	}
+
+	return body, nil
+}
+
 func (p *Parser) statement() (statement.Stmt, error) {
+	if p.match(token.FOR) {
+		return p.forStatement()
+	}
+
 	if p.match(token.IF) {
 		return p.ifStatement()
 	}
+
 	if p.match(token.PRINT) {
 		return p.printStatement()
+	}
+
+	if p.match(token.WHILE) {
+		return p.whileStatement()
 	}
 
 	if p.match(token.LEFT_BRACE) {
@@ -516,6 +623,7 @@ func (p *Parser) Parse() []statement.Stmt {
 
 	for !p.isAtEnd() {
 		statement, err := p.declaration()
+
 		if err != nil {
 			fmt.Println(err)
 			p.synchronize()

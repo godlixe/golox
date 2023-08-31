@@ -233,6 +233,12 @@ func (i *Interpreter) VisitIfStmt(stmt *statement.If) {
 	}
 }
 
+func (i *Interpreter) VisitWhileStmt(stmt *statement.While) {
+	for i.isTruthy(i.evaluate(stmt.Condition)) {
+		i.execute(stmt.Body)
+	}
+}
+
 func (i *Interpreter) execute(stmt statement.Stmt) {
 	stmt.Accept(i)
 }

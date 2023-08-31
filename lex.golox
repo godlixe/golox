@@ -1,6 +1,8 @@
-var a = false;
-var truth = "truth";
-var falsity = "falsity";
-if (a){
-  print truth;
-} else { print falsity; }
+var a = 0;
+var temp;
+
+for (var b = 1; a < 100000000; b = temp + b) {
+  print a;
+  temp = a;
+  a = b;
+}

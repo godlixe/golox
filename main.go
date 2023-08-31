@@ -59,7 +59,6 @@ func run(source string) {
 	parser := parser.Parser{
 		Tokens: tokens,
 	}
-
 	statements := parser.Parse()
 
 	interpreter := interpreter.Interpreter{
