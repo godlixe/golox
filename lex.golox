@@ -1,8 +1,6 @@
-var a = 0;
-var temp;
-
-for (var b = 1; a < 100000000; b = temp + b) {
-  print a;
-  temp = a;
-  a = b;
+fun sayHi(first, last) {
+  print first;
+  print last;
 }
+
+sayHi(2+2, 4*3);

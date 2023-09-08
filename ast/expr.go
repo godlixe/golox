@@ -11,7 +11,7 @@ import (
 type Visitor interface {
 	VisitAssignExpr(assign *Assign) any
 	VisitBinaryExpr(binary *Binary) any
-	// VisitCallExpr(call *Call) any
+	VisitCallExpr(call *Call) any
 	// VisitGetExpr(get *Get) any
 	VisitGroupingExpr(grouping *Grouping) any
 	VisitLiteralExpr(literal *Literal) any
@@ -78,9 +78,9 @@ type Call struct {
 	Arguments []Expr
 }
 
-// func (c *Call) Accept(visitor Visitor) any {
-// 	return visitor.VisitCallExpr(c)
-// }
+func (c *Call) Accept(visitor Visitor) any {
+	return visitor.VisitCallExpr(c)
+}
 
 // Get represents getting an object's property.
 type Get struct {

@@ -10,6 +10,15 @@ Statement production rules
 
 program        → statement* EOF ;
 
+declaration    → funDecl
+			   | varDecl
+			   | statement ;
+
+funDecl        → "fun" function ;
+function       → IDENTIFIER "(" parameters? ")" block ;
+
+parameters     → IDENTIFIER ( "," IDENTIFIER )* ;
+
 statement      → exprStmt
 			   | forStmt
 			   | ifStmt
@@ -32,7 +41,7 @@ type Visitor interface {
 	VisitBlockStmt(stmt *Block)
 	// VisitClassStmt(stmt *Class)
 	VisitExpressionStmt(stmt *Expression)
-	// VisitFunctionStmt(stmt *Function)
+	VisitFunctionStmt(stmt *Function)
 	VisitIfStmt(stmt *If)
 	VisitPrintStmt(stmt *Print)
 	// VisitReturnStmt(stmt *Return)
@@ -76,9 +85,9 @@ type Function struct {
 	Body   []Stmt
 }
 
-// func (f *Function) Accept(visitor Visitor) {
-// 	visitor.VisitFunctionStmt(f)
-// }
+func (f *Function) Accept(visitor Visitor) {
+	visitor.VisitFunctionStmt(f)
+}
 
 type If struct {
 	Condition  ast.Expr

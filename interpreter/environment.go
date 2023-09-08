@@ -23,17 +23,17 @@ func NewEnvironment(enclosing Environment) Environment {
 	}
 }
 
-func (e *Environment) define(name string, value any) {
+func (e *Environment) Define(name string, value any) {
 	e.Values[name] = value
 }
 
-func (e *Environment) get(name token.Token) any {
+func (e *Environment) Get(name token.Token) any {
 	if v, ok := e.Values[name.Lexeme]; ok {
 		return v
 	}
 
 	if e.Enclosing != nil {
-		return e.Enclosing.get(name)
+		return e.Enclosing.Get(name)
 	}
 
 	// TODO return error

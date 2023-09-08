@@ -234,6 +234,65 @@ func (p *Parser) factor() (ast.Expr, error) {
 	return expr, err
 }
 
+func (p *Parser) finishCall(callee ast.Expr) (ast.Expr, error) {
+	arguments := []ast.Expr{}
+	if !p.check(token.RIGHT_PAREN) {
+		if len(arguments) >= 255 {
+			fmt.Println("Can't have more than 255 arguments.")
+			// TODO : compiler error (?)
+		}
+
+		// get first argument
+		expr, err := p.expression()
+		if err != nil {
+			return nil, err
+		}
+
+		arguments = append(arguments, expr)
+
+		// get next arguments
+		for p.match(token.COMMA) {
+			expr, err := p.expression()
+			if err != nil {
+				return nil, err
+			}
+
+			arguments = append(arguments, expr)
+		}
+	}
+
+	paren, err := p.consume(token.RIGHT_PAREN, "Expect ')' after arguments.")
+	if err != nil {
+		return nil, err
+	}
+
+	return &ast.Call{
+		Callee:    callee,
+		Paren:     paren,
+		Arguments: arguments,
+	}, nil
+}
+
+func (p *Parser) call() (ast.Expr, error) {
+	expr, err := p.primary()
+	if err != nil {
+		return nil, err
+	}
+
+	for {
+		if p.match(token.LEFT_PAREN) {
+			expr, err = p.finishCall(expr)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			break
+		}
+	}
+
+	return expr, nil
+}
+
 // unary parses a unary expression. A unary
 // expression contains negation (! or -).
 func (p *Parser) unary() (ast.Expr, error) {
@@ -249,7 +308,7 @@ func (p *Parser) unary() (ast.Expr, error) {
 		}, err
 	}
 
-	return p.primary()
+	return p.call()
 }
 
 // primary parses a primary expression. A primary
@@ -608,7 +667,55 @@ func (p *Parser) varDeclaration() (statement.Stmt, error) {
 	}, nil
 }
 
+func (p *Parser) function(kind string) (*statement.Function, error) {
+	name, err := p.consume(token.IDENTIFIER, fmt.Sprintf("Expect %v name.", kind))
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	p.consume(token.LEFT_PAREN, fmt.Sprintf("Expect '(' after %v name.", kind))
+	var parameters []token.Token
+	if !p.check(token.RIGHT_PAREN) {
+		if len(parameters) >= 255 {
+			fmt.Println("Can't have more than 255 parameters.")
+		}
+
+		param, err := p.consume(token.IDENTIFIER, "Expect parameter name.")
+		if err != nil {
+			return nil, err
+		}
+
+		parameters = append(parameters, param)
+
+		for p.match(token.COMMA) {
+			param, err := p.consume(token.IDENTIFIER, "Expect parameter name.")
+			if err != nil {
+				return nil, err
+			}
+
+			parameters = append(parameters, param)
+		}
+	}
+
+	p.consume(token.RIGHT_PAREN, "Expect ')' after parameters.")
+
+	p.consume(token.LEFT_BRACE, fmt.Sprintf("Expect '{' before %v body.", kind))
+
+	body := p.block()
+
+	return &statement.Function{
+		Name:   name,
+		Params: parameters,
+		Body:   body,
+	}, nil
+}
+
 func (p *Parser) declaration() (statement.Stmt, error) {
+	if p.match(token.FUN) {
+		return p.function("function")
+	}
+
 	if p.match(token.VAR) {
 		return p.varDeclaration()
 	}

@@ -8,8 +8,14 @@ import (
 	"golox/token"
 )
 
+type GoloxCallable interface {
+	Arity() int
+	Call(interpreter *Interpreter, argumenst []any) any
+}
+
 type Interpreter struct {
 	Environment Environment
+	Globals     Environment
 }
 
 // isTruthy checks if an object is truthy or falsey.
@@ -72,7 +78,7 @@ func (i *Interpreter) VisitGroupingExpr(expr *ast.Grouping) any {
 }
 
 func (i *Interpreter) VisitVariableExpr(expr *ast.Variable) any {
-	return i.Environment.get(expr.Name)
+	return i.Environment.Get(expr.Name)
 }
 
 func (i *Interpreter) VisitAssignExpr(expr *ast.Assign) any {
@@ -95,6 +101,31 @@ func (i *Interpreter) VisitLogicalExpr(expr *ast.Logical) any {
 	}
 
 	return i.evaluate(expr.Right)
+}
+
+func (i *Interpreter) VisitCallExpr(expr *ast.Call) any {
+	callee := i.evaluate(expr.Callee)
+
+	arguments := []any{}
+	for _, argument := range expr.Arguments {
+		arguments = append(arguments, i.evaluate(argument))
+	}
+
+	if _, ok := callee.(GoloxCallable); !ok {
+		// TODO : add runtime error
+		fmt.Println("Callee is not a golox callable.", expr.Callee)
+		return nil
+	}
+
+	var function GoloxCallable = callee.(GoloxCallable)
+
+	if len(arguments) != function.Arity() {
+		// TODO : add runtime error
+		fmt.Printf("EXpected %v arguments but got %v.", function.Arity(), len(arguments))
+		return nil
+	}
+
+	return function.Call(i, arguments)
 }
 
 // evaluate evaluates an expression.
@@ -206,14 +237,14 @@ func (i *Interpreter) VisitVarStmt(stmt *statement.Variable) {
 		value = i.evaluate(stmt.Initializer)
 	}
 
-	i.Environment.define(stmt.Name.Lexeme, value)
+	i.Environment.Define(stmt.Name.Lexeme, value)
 }
 
 func (i *Interpreter) VisitBlockStmt(stmt *statement.Block) {
-	i.executeBlock(stmt.Statements, NewEnvironment(i.Environment))
+	i.ExecuteBlock(stmt.Statements, NewEnvironment(i.Environment))
 }
 
-func (i *Interpreter) executeBlock(statements []statement.Stmt, environment Environment) {
+func (i *Interpreter) ExecuteBlock(statements []statement.Stmt, environment Environment) {
 	previous := i.Environment
 
 	i.Environment = environment
@@ -237,6 +268,14 @@ func (i *Interpreter) VisitWhileStmt(stmt *statement.While) {
 	for i.isTruthy(i.evaluate(stmt.Condition)) {
 		i.execute(stmt.Body)
 	}
+}
+
+func (i *Interpreter) VisitFunctionStmt(stmt *statement.Function) {
+	fun := &GoloxFunction{
+		Declaration: *stmt,
+	}
+
+	i.Environment.Define(stmt.Name.Lexeme, fun)
 }
 
 func (i *Interpreter) execute(stmt statement.Stmt) {

@@ -7,7 +7,26 @@ import (
 	"golox/parser"
 	"golox/scanner"
 	"os"
+	"time"
 )
+
+// TODO : move to somewhere else
+type clock struct{}
+
+func (c *clock) Arity() int {
+	return 0
+}
+
+func (c *clock) Call(
+	interpreter interpreter.Interpreter,
+	arguments []any,
+) any {
+	return float64(time.Now().UnixMilli() / 1000)
+}
+
+func (c *clock) ToString() string {
+	return "<native fn>"
+}
 
 func main() {
 	// get arguments from program
@@ -61,11 +80,19 @@ func run(source string) {
 	}
 	statements := parser.Parse()
 
+	// initialize global environment here for
+	// a fixed reference to the outermost global
+	// environment for the interpreter.
+	globalEnv := interpreter.Environment{
+		Enclosing: nil,
+		Values:    make(map[string]any),
+	}
+
+	globalEnv.Define("clock", clock{})
+
 	interpreter := interpreter.Interpreter{
-		Environment: interpreter.Environment{
-			Enclosing: nil,
-			Values:    make(map[string]any),
-		},
+		Environment: globalEnv,
+		Globals:     globalEnv,
 	}
 
 	interpreter.Interpret(statements)
