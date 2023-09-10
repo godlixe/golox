@@ -10,11 +10,11 @@ type GoloxFunction struct {
 }
 
 func (g *GoloxFunction) Call(
-	gInterpreter *Interpreter,
+	fInterpreter *Interpreter,
 	arguments []any,
 ) any {
 	environment := NewEnvironment(
-		gInterpreter.Globals,
+		fInterpreter.Globals,
 	)
 
 	for i := 0; i < len(g.Declaration.Params); i++ {
@@ -24,12 +24,14 @@ func (g *GoloxFunction) Call(
 		)
 	}
 
-	gInterpreter.ExecuteBlock(
+	var res any = nil
+
+	res = fInterpreter.ExecuteBlock(
 		g.Declaration.Body,
 		environment,
 	)
 
-	return nil
+	return res
 }
 
 func (g *GoloxFunction) Arity() int {

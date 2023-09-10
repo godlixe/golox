@@ -108,7 +108,8 @@ func (i *Interpreter) VisitCallExpr(expr *ast.Call) any {
 
 	arguments := []any{}
 	for _, argument := range expr.Arguments {
-		arguments = append(arguments, i.evaluate(argument))
+		res := i.evaluate(argument)
+		arguments = append(arguments, res)
 	}
 
 	if _, ok := callee.(GoloxCallable); !ok {
@@ -121,16 +122,18 @@ func (i *Interpreter) VisitCallExpr(expr *ast.Call) any {
 
 	if len(arguments) != function.Arity() {
 		// TODO : add runtime error
-		fmt.Printf("EXpected %v arguments but got %v.", function.Arity(), len(arguments))
+		fmt.Printf("Expected %v arguments but got %v.", function.Arity(), len(arguments))
 		return nil
 	}
 
-	return function.Call(i, arguments)
+	fnCall := function.Call(i, arguments)
+	return fnCall
 }
 
 // evaluate evaluates an expression.
 func (i *Interpreter) evaluate(expr ast.Expr) any {
-	return expr.Accept(i)
+	res := expr.Accept(i)
+	return res
 }
 
 // VisitUnaryExpr evaluates a unary expression.
@@ -222,64 +225,84 @@ func (i *Interpreter) VisitBinaryExpr(expr *ast.Binary) any {
 	return nil
 }
 
-func (i *Interpreter) VisitExpressionStmt(stmt *statement.Expression) {
-	i.evaluate(stmt.Expression)
+func (i *Interpreter) VisitExpressionStmt(stmt *statement.Expression) any {
+	return i.evaluate(stmt.Expression)
 }
 
-func (i *Interpreter) VisitPrintStmt(stmt *statement.Print) {
+func (i *Interpreter) VisitPrintStmt(stmt *statement.Print) any {
 	value := i.evaluate(stmt.Expression)
 	fmt.Println(value)
+	return value
 }
 
-func (i *Interpreter) VisitVarStmt(stmt *statement.Variable) {
+func (i *Interpreter) VisitVarStmt(stmt *statement.Variable) any {
 	var value any
 	if stmt.Initializer != nil {
 		value = i.evaluate(stmt.Initializer)
 	}
 
 	i.Environment.Define(stmt.Name.Lexeme, value)
+	return nil
 }
 
-func (i *Interpreter) VisitBlockStmt(stmt *statement.Block) {
-	i.ExecuteBlock(stmt.Statements, NewEnvironment(i.Environment))
+func (i *Interpreter) VisitBlockStmt(stmt *statement.Block) any {
+	return i.ExecuteBlock(stmt.Statements, NewEnvironment(i.Environment))
 }
 
-func (i *Interpreter) ExecuteBlock(statements []statement.Stmt, environment Environment) {
+func (i *Interpreter) ExecuteBlock(statements []statement.Stmt, environment Environment) any {
 	previous := i.Environment
 
 	i.Environment = environment
 
+	var res any = nil
+
 	for _, statement := range statements {
-		i.execute(statement)
+		res = i.execute(statement)
 	}
 
 	i.Environment = previous
+	return res
 }
 
-func (i *Interpreter) VisitIfStmt(stmt *statement.If) {
+func (i *Interpreter) VisitIfStmt(stmt *statement.If) any {
 	if i.isTruthy(i.evaluate(stmt.Condition)) {
-		i.execute(stmt.ThenBranch)
+		return i.execute(stmt.ThenBranch)
 	} else if stmt.ElseBranch != nil {
-		i.execute(stmt.ElseBranch)
+		return i.execute(stmt.ElseBranch)
 	}
+
+	return nil
 }
 
-func (i *Interpreter) VisitWhileStmt(stmt *statement.While) {
+func (i *Interpreter) VisitWhileStmt(stmt *statement.While) any {
 	for i.isTruthy(i.evaluate(stmt.Condition)) {
 		i.execute(stmt.Body)
 	}
+
+	return nil
 }
 
-func (i *Interpreter) VisitFunctionStmt(stmt *statement.Function) {
+func (i *Interpreter) VisitFunctionStmt(stmt *statement.Function) any {
 	fun := &GoloxFunction{
 		Declaration: *stmt,
 	}
 
 	i.Environment.Define(stmt.Name.Lexeme, fun)
+
+	return nil
 }
 
-func (i *Interpreter) execute(stmt statement.Stmt) {
-	stmt.Accept(i)
+func (i *Interpreter) VisitReturnStmt(stmt *statement.Return) any {
+	var value any = nil
+	if stmt.Value != nil {
+		value = i.evaluate(stmt.Value)
+	}
+
+	return value
+}
+
+func (i *Interpreter) execute(stmt statement.Stmt) any {
+	return stmt.Accept(i)
 }
 
 // Interpret interprets expressions from an AST.
