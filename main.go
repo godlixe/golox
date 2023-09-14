@@ -6,9 +6,52 @@ import (
 	"golox/interpreter"
 	"golox/parser"
 	"golox/scanner"
+	"golox/statement"
 	"os"
 	"time"
 )
+
+func PrintAst(stmt statement.Stmt) {
+	if stmt == nil {
+		return
+	}
+
+	switch t := stmt.(type) {
+
+	case *statement.Block:
+		fmt.Println("block")
+		fmt.Println(t.Statements)
+
+	case *statement.Expression:
+		fmt.Println("expression")
+		fmt.Println(t.Expression)
+
+	case *statement.Function:
+		fmt.Println("function")
+		fmt.Println(t.Name)
+
+	case *statement.If:
+		fmt.Println("if")
+		fmt.Println(t.Condition)
+
+	case *statement.Print:
+		fmt.Println("print")
+		fmt.Println(t.Expression)
+
+	case *statement.Return:
+		fmt.Println("return")
+		fmt.Println(t.Keyword)
+
+	case *statement.Variable:
+		fmt.Println("variable")
+		fmt.Println(t.Name)
+
+	case *statement.While:
+		fmt.Println("while")
+		fmt.Println(t.Body)
+	}
+
+}
 
 // TODO : move to somewhere else
 type clock struct{}

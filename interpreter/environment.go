@@ -1,6 +1,7 @@
 package interpreter
 
 import (
+	"errors"
 	"fmt"
 	"golox/token"
 )
@@ -27,18 +28,16 @@ func (e *Environment) Define(name string, value any) {
 	e.Values[name] = value
 }
 
-func (e *Environment) Get(name token.Token) any {
+func (e *Environment) Get(name token.Token) (any, error) {
 	if v, ok := e.Values[name.Lexeme]; ok {
-		return v
+		return v, nil
 	}
 
 	if e.Enclosing != nil {
 		return e.Enclosing.Get(name)
 	}
 
-	// TODO return error
-	fmt.Println("Undefined variable '", name.Lexeme, "'.")
-	return nil
+	return nil, errors.New(fmt.Sprintf("Undefined variable '", name.Lexeme, "'."))
 }
 
 func (e *Environment) assign(name token.Token, value any) {

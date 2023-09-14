@@ -12,7 +12,7 @@ type GoloxFunction struct {
 func (g *GoloxFunction) Call(
 	fInterpreter *Interpreter,
 	arguments []any,
-) any {
+) (any, error) {
 	environment := NewEnvironment(
 		fInterpreter.Globals,
 	)
@@ -26,12 +26,12 @@ func (g *GoloxFunction) Call(
 
 	var res any = nil
 
-	res = fInterpreter.ExecuteBlock(
+	res, err := fInterpreter.ExecuteBlock(
 		g.Declaration.Body,
 		environment,
 	)
 
-	return res
+	return res, err
 }
 
 func (g *GoloxFunction) Arity() int {

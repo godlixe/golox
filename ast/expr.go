@@ -1,7 +1,6 @@
 package ast
 
 import (
-	"fmt"
 	"golox/token"
 )
 
@@ -9,34 +8,18 @@ import (
 // the visitor pattern. It provides method
 // for visiting expressions in the AST.
 type Visitor interface {
-	VisitAssignExpr(assign *Assign) any
-	VisitBinaryExpr(binary *Binary) any
-	VisitCallExpr(call *Call) any
-	// VisitGetExpr(get *Get) any
-	VisitGroupingExpr(grouping *Grouping) any
-	VisitLiteralExpr(literal *Literal) any
-	VisitLogicalExpr(logical *Logical) any
-	// VisitSetExpr(set *Set) any
-	// VisitSuperExpr(super *Super) any
-	// VisitThisExpr(this *This) any
-	VisitUnaryExpr(unary *Unary) any
-	VisitVariableExpr(variable *Variable) any
-}
-
-func PrintAst(expr Expr) {
-	if expr == nil {
-		return
-	}
-
-	if v, ok := expr.(*Literal); ok {
-		fmt.Println(v)
-	}
-
-	if v, ok := expr.(*Binary); ok {
-		PrintAst(v.Left)
-		PrintAst(v.Right)
-		fmt.Println(v.Operator)
-	}
+	VisitAssignExpr(assign *Assign) (any, error)
+	VisitBinaryExpr(binary *Binary) (any, error)
+	VisitCallExpr(call *Call) (any, error)
+	// VisitGetExpr(get *Get) (any, error)
+	VisitGroupingExpr(grouping *Grouping) (any, error)
+	VisitLiteralExpr(literal *Literal) (any, error)
+	VisitLogicalExpr(logical *Logical) (any, error)
+	// VisitSetExpr(set *Set) (any, error)
+	// VisitSuperExpr(super *Super) (any, error)
+	// VisitThisExpr(this *This) (any, error)
+	VisitUnaryExpr(unary *Unary) (any, error)
+	VisitVariableExpr(variable *Variable) (any, error)
 }
 
 // Expr defines an interface for an expression.
@@ -44,7 +27,7 @@ func PrintAst(expr Expr) {
 // call, get, grouping, literal, logical, set
 // super, this, unary, and variable.
 type Expr interface {
-	Accept(visitor Visitor) any
+	Accept(visitor Visitor) (any, error)
 }
 
 // Assign represents an assignment
@@ -55,7 +38,7 @@ type Assign struct {
 	Expr
 }
 
-func (a *Assign) Accept(visitor Visitor) any {
+func (a *Assign) Accept(visitor Visitor) (any, error) {
 	return visitor.VisitAssignExpr(a)
 }
 
@@ -67,7 +50,7 @@ type Binary struct {
 	Operator token.Token
 }
 
-func (b *Binary) Accept(visitor Visitor) any {
+func (b *Binary) Accept(visitor Visitor) (any, error) {
 	return visitor.VisitBinaryExpr(b)
 }
 
@@ -78,7 +61,7 @@ type Call struct {
 	Arguments []Expr
 }
 
-func (c *Call) Accept(visitor Visitor) any {
+func (c *Call) Accept(visitor Visitor) (any, error) {
 	return visitor.VisitCallExpr(c)
 }
 
@@ -88,7 +71,7 @@ type Get struct {
 	Name   token.Token
 }
 
-// func (g *Get) Accept(visitor Visitor) any {
+// func (g *Get) Accept(visitor Visitor) (any, error) {
 // 	return visitor.VisitGetExpr(g)
 // }
 
@@ -98,7 +81,7 @@ type Grouping struct {
 	Expression Expr
 }
 
-func (g *Grouping) Accept(visitor Visitor) any {
+func (g *Grouping) Accept(visitor Visitor) (any, error) {
 	return visitor.VisitGroupingExpr(g)
 }
 
@@ -107,7 +90,7 @@ type Literal struct {
 	Value any
 }
 
-func (l *Literal) Accept(visitor Visitor) any {
+func (l *Literal) Accept(visitor Visitor) (any, error) {
 	return visitor.VisitLiteralExpr(l)
 }
 
@@ -118,7 +101,7 @@ type Logical struct {
 	Operator token.Token
 }
 
-func (l *Logical) Accept(visitor Visitor) any {
+func (l *Logical) Accept(visitor Visitor) (any, error) {
 	return visitor.VisitLogicalExpr(l)
 }
 
@@ -129,7 +112,7 @@ type Set struct {
 	Value  Expr
 }
 
-// func (s *Set) Accept(visitor Visitor) any {
+// func (s *Set) Accept(visitor Visitor) (any, error) {
 // 	return visitor.VisitSetExpr(s)
 // }
 
@@ -139,7 +122,7 @@ type Super struct {
 	Method  token.Token
 }
 
-// func (s *Super) Accept(visitor Visitor) any {
+// func (s *Super) Accept(visitor Visitor) (any, error) {
 // 	return visitor.VisitSuperExpr(s)
 // }
 
@@ -148,7 +131,7 @@ type This struct {
 	Keyword token.Token
 }
 
-// func (t *This) Accept(visitor Visitor) any {
+// func (t *This) Accept(visitor Visitor) (any, error) {
 // 	return visitor.VisitThisExpr(t)
 // }
 
@@ -158,7 +141,7 @@ type Unary struct {
 	Right    Expr
 }
 
-func (u *Unary) Accept(visitor Visitor) any {
+func (u *Unary) Accept(visitor Visitor) (any, error) {
 	return visitor.VisitUnaryExpr(u)
 }
 
@@ -167,6 +150,6 @@ type Variable struct {
 	Name token.Token
 }
 
-func (v *Variable) Accept(visitor Visitor) any {
+func (v *Variable) Accept(visitor Visitor) (any, error) {
 	return visitor.VisitVariableExpr(v)
 }

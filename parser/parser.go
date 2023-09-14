@@ -6,6 +6,7 @@ import (
 	"golox/ast"
 	"golox/statement"
 	"golox/token"
+	"os"
 )
 
 /*
@@ -402,7 +403,7 @@ func (p *Parser) block() []statement.Stmt {
 		declaration, err := p.declaration()
 		if err != nil {
 			fmt.Println("Invalid declaration.")
-			panic(1)
+			os.Exit(1)
 		}
 
 		statements = append(statements, declaration)
