@@ -121,7 +121,10 @@ func run(source string) {
 	parser := parser.Parser{
 		Tokens: tokens,
 	}
-	statements := parser.Parse()
+	statements, isError := parser.Parse()
+	if isError {
+		os.Exit(1)
+	}
 
 	// initialize global environment here for
 	// a fixed reference to the outermost global

@@ -42,7 +42,7 @@ func (p *Parser) previous() token.Token {
 	return p.Tokens[p.Current-1]
 }
 
-// Peek returnsthe current token.
+// Peek returns the current token.
 func (p *Parser) peek() token.Token {
 	return p.Tokens[p.Current]
 }
@@ -102,7 +102,7 @@ func (p *Parser) synchronize() {
 	p.advance()
 
 	for !p.isAtEnd() {
-		p.advance()
+		// p.advance()
 		if p.previous().Type == token.SEMICOLON {
 			return
 		}
@@ -355,7 +355,7 @@ func (p *Parser) primary() (ast.Expr, error) {
 
 		_, err = p.consume(token.RIGHT_PAREN, "Expect ')' after expression.")
 		if err != nil {
-			fmt.Println(err)
+			return nil, err
 		}
 
 		return &ast.Grouping{
@@ -422,7 +422,6 @@ func (p *Parser) printStatement() (statement.Stmt, error) {
 
 	_, err = p.consume(token.SEMICOLON, "Expect ';' after value.")
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 
@@ -653,14 +652,12 @@ func (p *Parser) varDeclaration() (statement.Stmt, error) {
 
 	name, err := p.consume(token.IDENTIFIER, "Expect variable name.")
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 
 	if p.match(token.EQUAL) {
 		initializer, err = p.expression()
 		if err != nil {
-			fmt.Println(err)
 			return nil, err
 		}
 	}
@@ -675,7 +672,6 @@ func (p *Parser) varDeclaration() (statement.Stmt, error) {
 func (p *Parser) function(kind string) (*statement.Function, error) {
 	name, err := p.consume(token.IDENTIFIER, fmt.Sprintf("Expect %v name.", kind))
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 
@@ -748,20 +744,24 @@ func (p *Parser) returnStatement() (statement.Stmt, error) {
 }
 
 // parse parses the tokens inside the token list.
-func (p *Parser) Parse() []statement.Stmt {
+func (p *Parser) Parse() ([]statement.Stmt, bool) {
 
 	var statements []statement.Stmt
+	var isError bool
 
 	for !p.isAtEnd() {
 		statement, err := p.declaration()
 
 		if err != nil {
+			isError = true
 			fmt.Println(err)
 			p.synchronize()
 		}
 
+		// fmt.Println(p.peek())
+
 		statements = append(statements, statement)
 	}
 
-	return statements
+	return statements, isError
 }
