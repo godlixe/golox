@@ -1,7 +1,6 @@
 package interpreter
 
 import (
-	"errors"
 	"fmt"
 	"golox/token"
 )
@@ -37,7 +36,7 @@ func (e *Environment) Get(name token.Token) (any, error) {
 		return e.Enclosing.Get(name)
 	}
 
-	return nil, errors.New(fmt.Sprintf("Undefined variable '", name.Lexeme, "'."))
+	return nil, fmt.Errorf("Undefined variable %v.", name.Lexeme)
 }
 
 func (e *Environment) assign(name token.Token, value any) {

@@ -102,7 +102,6 @@ func (p *Parser) synchronize() {
 	p.advance()
 
 	for !p.isAtEnd() {
-		// p.advance()
 		if p.previous().Type == token.SEMICOLON {
 			return
 		}
@@ -757,8 +756,6 @@ func (p *Parser) Parse() ([]statement.Stmt, bool) {
 			fmt.Println(err)
 			p.synchronize()
 		}
-
-		// fmt.Println(p.peek())
 
 		statements = append(statements, statement)
 	}

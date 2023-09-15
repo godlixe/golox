@@ -5,8 +5,8 @@ fun helloWorld(){
 }
 
 
-// helloWorld();
+helloWorld();
 
-for (var i = 0; i < 1; i = i + 1) {
- helloWorld();
-}
+// for (var i = 0; i < 1; i = i + 1) {
+// helloWorld();
+// }
