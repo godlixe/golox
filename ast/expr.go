@@ -23,9 +23,8 @@ type Visitor interface {
 }
 
 // Expr defines an interface for an expression.
-// an Expression could be of assignment, binary
-// call, get, grouping, literal, logical, set
-// super, this, unary, and variable.
+// an Expression has an accept method that accepts
+// a visitor and returns a data and error.
 type Expr interface {
 	Accept(visitor Visitor) (any, error)
 }

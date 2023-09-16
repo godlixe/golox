@@ -1,9 +1,8 @@
-var str = var;
+var str = "Hello World";
 
 fun helloWorld(){
   print str;
 }
-
 
 helloWorld();
 

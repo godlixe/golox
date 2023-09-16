@@ -6,6 +6,8 @@ import (
 	"strconv"
 )
 
+// keywords contain reserved keywords for the
+// golox language.
 var keywords = map[string]token.TokenType{
 	"and":    token.AND,
 	"class":  token.CLASS,
@@ -25,7 +27,7 @@ var keywords = map[string]token.TokenType{
 	"while":  token.WHILE,
 }
 
-// Scanner defines a scanner object
+// Scanner defines a scanner object.
 type Scanner struct {
 	Start   int
 	Current int
@@ -35,7 +37,7 @@ type Scanner struct {
 	Tokens []token.Token
 }
 
-// New creates a new Scanner instance
+// New creates a new Scanner instance.
 func New(source string) Scanner {
 	return Scanner{
 		Source:  source,
@@ -187,7 +189,7 @@ func (s *Scanner) identifier() {
 		tokenType = token.IDENTIFIER
 	}
 
-	s.addToken(tokenType, nil)
+	s.addToken(tokenType, text)
 }
 
 // scanToken scans a token, matches it
@@ -197,48 +199,48 @@ func (s *Scanner) scanToken() {
 
 	switch c {
 	case "(":
-		s.addToken(token.LEFT_PAREN, nil)
+		s.addToken(token.LEFT_PAREN, "(")
 	case ")":
-		s.addToken(token.RIGHT_PAREN, nil)
+		s.addToken(token.RIGHT_PAREN, ")")
 	case "{":
-		s.addToken(token.LEFT_BRACE, nil)
+		s.addToken(token.LEFT_BRACE, "{")
 	case "}":
-		s.addToken(token.RIGHT_BRACE, nil)
+		s.addToken(token.RIGHT_BRACE, "}")
 	case ",":
-		s.addToken(token.COMMA, nil)
+		s.addToken(token.COMMA, ",")
 	case ".":
-		s.addToken(token.DOT, nil)
+		s.addToken(token.DOT, ".")
 	case "-":
-		s.addToken(token.MINUS, nil)
+		s.addToken(token.MINUS, "-")
 	case "+":
-		s.addToken(token.PLUS, nil)
+		s.addToken(token.PLUS, "+")
 	case ";":
-		s.addToken(token.SEMICOLON, nil)
+		s.addToken(token.SEMICOLON, ";")
 	case "*":
-		s.addToken(token.STAR, nil)
+		s.addToken(token.STAR, "*")
 	case "!":
 		if s.match("=") {
-			s.addToken(token.BANG_EQUAL, nil)
+			s.addToken(token.BANG_EQUAL, "!=")
 		} else {
-			s.addToken(token.BANG, nil)
+			s.addToken(token.BANG, "!")
 		}
 	case "=":
 		if s.match("=") {
-			s.addToken(token.EQUAL_EQUAL, nil)
+			s.addToken(token.EQUAL_EQUAL, "==")
 		} else {
-			s.addToken(token.EQUAL, nil)
+			s.addToken(token.EQUAL, "=")
 		}
 	case "<":
 		if s.match("=") {
-			s.addToken(token.LESS_EQUAL, nil)
+			s.addToken(token.LESS_EQUAL, "<=")
 		} else {
-			s.addToken(token.LESS, nil)
+			s.addToken(token.LESS, "<")
 		}
 	case ">":
 		if s.match("=") {
-			s.addToken(token.GREATER_EQUAL, nil)
+			s.addToken(token.GREATER_EQUAL, ">=")
 		} else {
-			s.addToken(token.GREATER, nil)
+			s.addToken(token.GREATER, ">")
 		}
 	case "/":
 		if s.match("/") {
@@ -246,7 +248,7 @@ func (s *Scanner) scanToken() {
 				s.advance()
 			}
 		} else {
-			s.addToken(token.SLASH, nil)
+			s.addToken(token.SLASH, "/")
 		}
 	case " ":
 	case "\r":
