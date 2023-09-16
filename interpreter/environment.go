@@ -39,16 +39,16 @@ func (e *Environment) Get(name token.Token) (any, error) {
 	return nil, fmt.Errorf("Undefined variable %v.", name.Lexeme)
 }
 
-func (e *Environment) assign(name token.Token, value any) {
+func (e *Environment) assign(name token.Token, value any) error {
 	if _, ok := e.Values[name.Lexeme]; ok {
 		e.Values[name.Lexeme] = value
-		return
+		return nil
 	}
 
 	if e.Enclosing != nil {
 		e.Enclosing.assign(name, value)
-		return
+		return nil
 	}
 
-	fmt.Println("Undefined variable '", name.Lexeme, "'.")
+	return fmt.Errorf("Undefined variable %v.", name.Lexeme)
 }

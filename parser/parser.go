@@ -432,7 +432,6 @@ func (p *Parser) block() ([]statement.Stmt, error) {
 func (p *Parser) printStatement() (statement.Stmt, error) {
 	value, err := p.expression()
 	if err != nil {
-		fmt.Println(value)
 		return nil, err
 	}
 
@@ -648,7 +647,7 @@ func (p *Parser) or() (ast.Expr, error) {
 		return nil, err
 	}
 
-	for p.match(token.AND) {
+	for p.match(token.OR) {
 		operator := p.previous()
 		right, err := p.and()
 		if err != nil {

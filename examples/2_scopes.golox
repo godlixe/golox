@@ -1,0 +1,13 @@
+// Golox has variable scopes.
+// Statements enclosed in a block will have a different scope.
+
+var a = "outer";
+{
+    print a;
+    var a = "middle";
+    {
+        print a;
+        var a = "inner";
+        print a;
+    }
+}

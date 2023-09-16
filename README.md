@@ -1,5 +1,17 @@
 This is an interpreter project for the language Lox from [craftinginterpreters](craftinginterpreters.com)
-built in Golang, hence the name Golox. To run this project, you need to have Golang installed on your machine.
+built in Golang, hence the name Golox. To run this project, you can run the executables located in the `bin` directory, or build the project using `go build`. Run a file by passing it as an argument to the program : 
+
+```
+golox lex.golox
+```
+
+The interpreter is currently able to evaluate expressions and statements. It supports :
+- Variables and expressions
+- Blocks and scopes
+- Conditionals
+- For loop and while loop
+- Functions and returns
+
 
 The goal is to make a working interpreter. Currently, the interpreter consists of :
 
@@ -7,6 +19,13 @@ The goal is to make a working interpreter. Currently, the interpreter consists o
 - Parser
 - Interpreter
 
-The interpreter is currently able to evaluate simple mathematical expressions. 
+```mermaid
+graph TD;
+      Source-->Scanner;
+      Scanner-->Tokens;
+      Tokens-->Parser
+      Parser-->Statements;
+      Statements-->Interpreter;
+```
 
-Hit up the REPL (Read-Eval-Print-Loop) by using the command `go run main.go`. The interpreter supports file inputs by passing the file name to the run command `go run main.go [filename]` but is currently only able to evaluate a single expression. 
+Testing of the interpreter is still in process.

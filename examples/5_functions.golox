@@ -1,0 +1,11 @@
+// Golox supports functions.
+
+// A function is declared with the "fun" syntax.
+// When a return occurs, the function exits from the block.
+
+fun fib(n){
+    if(n<=1) return n;
+    return fib(n-2)+fib(n-1);
+}
+
+print fib(8);

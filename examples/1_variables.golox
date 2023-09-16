@@ -1,0 +1,48 @@
+// characters after the "//" character in a line
+// is considered as comment.
+
+// Golox variables has 3 types, string, number, and boolean.
+// numbers are represented in floats internally.
+
+// Variables are declared using the `var` syntax.
+
+// create variable `a` with the string
+// "Hello World" as a value.
+var a = "Hello World";
+
+// create variable `b` with the integer.
+// 4 as a value.
+var b = 4;
+
+// print the value of a.
+print a;
+
+// print the value of b.
+print b;
+
+// reassigning variable b.
+b = " :)";
+
+print b;
+
+// concatenate 2 strings with the "+" (plus) symbol
+// (only works when 2 of the operands are strings).
+var c = a+b;
+print c;
+
+var d = 2;
+var c = 3;
+
+// do mathematical operations.
+print (c+d)*c+d-3/2;
+
+// create and evaluate boolean expressions
+var e = true;
+e = e and false;
+print e;
+
+e = e or true;
+print e;
+
+e = !e;
+print e;

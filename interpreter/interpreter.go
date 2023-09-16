@@ -88,7 +88,11 @@ func (i *Interpreter) VisitAssignExpr(expr *ast.Assign) (any, error) {
 		return nil, err
 	}
 
-	i.Environment.assign(expr.Name, value)
+	err = i.Environment.assign(expr.Name, value)
+	if err != nil {
+		return nil, err
+	}
+
 	return value, nil
 }
 
@@ -302,6 +306,12 @@ func (i *Interpreter) ExecuteBlock(statements []statement.Stmt, environment Envi
 		res, err = i.execute(statement)
 		if err != nil {
 			return nil, err
+		}
+
+		// return when there is early return
+		// in a function
+		if res != nil {
+			break
 		}
 	}
 
