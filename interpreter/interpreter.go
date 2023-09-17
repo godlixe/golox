@@ -9,6 +9,14 @@ import (
 	"os"
 )
 
+type returnValue struct {
+	value any
+}
+
+func (r *returnValue) getValue() any {
+	return r.value
+}
+
 type GoloxCallable interface {
 	Arity() int
 	Call(interpreter *Interpreter, argumenst []any) (any, error)
@@ -310,7 +318,8 @@ func (i *Interpreter) ExecuteBlock(statements []statement.Stmt, environment Envi
 
 		// return when there is early return
 		// in a function
-		if res != nil {
+		if v, ok := res.(returnValue); ok {
+			res = v.getValue()
 			break
 		}
 	}
@@ -373,6 +382,12 @@ func (i *Interpreter) VisitReturnStmt(stmt *statement.Return) (any, error) {
 		value, err = i.evaluate(stmt.Value)
 		if err != nil {
 			return nil, err
+		}
+
+		if value != nil {
+			value = returnValue{
+				value: value,
+			}
 		}
 	}
 
